@@ -7,7 +7,7 @@ pub struct Vector {
     pub z: f64,
 }
 
-type Point = Vector;
+pub type Point = Vector;
 
 impl Vector {
     pub fn new(x: f64, y: f64, z: f64) -> Self {
