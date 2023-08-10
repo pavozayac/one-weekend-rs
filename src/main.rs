@@ -1,10 +1,14 @@
+mod hit;
 mod ray;
+mod sphere;
 mod vector;
 
 use std::error::Error;
 
+use hit::Hittable;
 use image::{self, io::Reader, Pixel, Rgb, RgbImage};
 use ray::Ray;
+use sphere::Sphere;
 use vector::{Point, Vector};
 
 type Color = vector::Vector;
@@ -16,10 +20,16 @@ fn write_color(img: &mut RgbImage, x: u32, y: u32, color: Color) {
 }
 
 fn ray_color(ray: &Ray) -> Color {
+    let s = Sphere::new(Point::new(0.0, 0.0, -1.0), 0.5);
+
+    if let Some(hit) = s.hit(ray, 0.0, f64::MAX) {
+        return 0.5 * Color::new(hit.normal.x + 1.0, hit.normal.y + 1.0, hit.normal.z + 1.0);
+    }
+
     let unit = ray.direction.unit();
     let a = 0.5 * (unit.y + 1.0);
 
-    a * Color::new(1.0, 1.0, 1.0) + (1.0 - a) * Color::new(0.5, 0.7, 1.0)
+    (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -33,7 +43,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let camera_center = Point::new(0.0, 0.0, 0.0);
 
     let vu = Vector::new(vw, 0.0, 0.0);
-    let vv = Vector::new(0.0, vh, 0.0);
+    let vv = Vector::new(0.0, -vh, 0.0);
 
     let pdu = vu / imw as f64;
     let pdv = vv / imh as f64;
