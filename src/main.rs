@@ -1,4 +1,5 @@
 mod hit;
+mod interval;
 mod ray;
 mod sphere;
 mod vector;
