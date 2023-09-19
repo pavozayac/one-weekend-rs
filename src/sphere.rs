@@ -1,6 +1,6 @@
 use crate::{
     hit::{Hit, Hittable},
-    vector::Point,
+    vector::{Point, Vector},
 };
 
 pub struct Sphere {
@@ -31,7 +31,9 @@ impl Hittable for Sphere {
             if t > t_max || t < t_min {
                 None
             } else {
-                Some(Hit::new(ray.at(t), (ray.at(t) - self.center).unit(), t))
+                let outward_normal: Vector = (ray.at(t) - self.center).unit();
+
+                Some(Hit::with_face_normal(ray.at(t), t, &ray, outward_normal))
             }
         }
     }

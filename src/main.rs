@@ -19,11 +19,11 @@ fn write_color(img: &mut RgbImage, x: u32, y: u32, color: Color) {
     img.put_pixel(x, y, rgb);
 }
 
-fn ray_color(ray: &Ray) -> Color {
-    let s = Sphere::new(Point::new(0.0, 0.0, -1.0), 0.5);
-
-    if let Some(hit) = s.hit(ray, 0.0, f64::MAX) {
-        return 0.5 * Color::new(hit.normal.x + 1.0, hit.normal.y + 1.0, hit.normal.z + 1.0);
+fn ray_color(ray: &Ray, world: &Vec<&dyn Hittable>) -> Color {
+    for object in world.into_iter() {
+        if let Some(hit) = object.hit(ray, 0.0, f64::MAX) {
+            return 0.5 * Color::new(hit.normal.x + 1.0, hit.normal.y + 1.0, hit.normal.z + 1.0);
+        }
     }
 
     let unit = ray.direction.unit();
@@ -34,7 +34,7 @@ fn ray_color(ray: &Ray) -> Color {
 
 fn main() -> Result<(), Box<dyn Error>> {
     let aspect_ratio: f64 = 16.0 / 9.0;
-    let imw: u32 = 600;
+    let imw: u32 = 1920;
     let imh: u32 = (imw as f64 / aspect_ratio).clamp(1.0, f64::MAX) as u32;
 
     let focal_length: f64 = 1.0;
@@ -55,6 +55,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut img = RgbImage::new(imw, imh);
 
+    let mut world: Vec<&dyn Hittable> = Vec::new();
+    let s = Sphere::new(Point::new(0.0, 0.0, -1.0), 0.5);
+    let s2 = Sphere::new(Point::new(0.0, -100.0, -1.0), 100.0);
+
+    world.push(&s);
+    world.push(&s2);
+
     for i in 0..imh {
         println!("Lines left: {}", imh - i);
         for j in 0..imw {
@@ -63,7 +70,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             let r = Ray::new(camera_center, ray_dir);
 
-            write_color(&mut img, j, i, ray_color(&r));
+            write_color(&mut img, j, i, ray_color(&r, &world));
         }
     }
 
