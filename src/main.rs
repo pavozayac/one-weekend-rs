@@ -15,7 +15,7 @@ pub type Color = vector::Vector;
 fn main() {
     let mut world: Vec<&dyn Hittable> = Vec::new();
     let s = Sphere::new(Point::new(0.0, 0.0, -1.0), 0.5);
-    let s2 = Sphere::new(Point::new(0.0, -100.0, -1.0), 100.0);
+    let s2 = Sphere::new(Point::new(0.0, -100.5, -1.0), 100.0);
 
     world.push(&s);
     world.push(&s2);

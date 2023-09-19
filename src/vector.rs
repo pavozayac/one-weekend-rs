@@ -1,5 +1,7 @@
 use std::ops::*;
 
+use rand::{rngs::ThreadRng, thread_rng, Rng};
+
 #[derive(Clone, Copy, PartialEq)]
 pub struct Vector {
     pub x: f64,
@@ -12,6 +14,44 @@ pub type Point = Vector;
 impl Vector {
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         Vector { x, y, z }
+    }
+
+    pub fn random(min: f64, max: f64) -> Self {
+        let mut rng: ThreadRng = thread_rng();
+
+        Vector {
+            x: rng.gen_range(min..max),
+            y: rng.gen_range(min..max),
+            z: rng.gen_range(min..max),
+        }
+    }
+
+    pub fn random_unitmax() -> Self {
+        Self::random(0.0, 1.0)
+    }
+
+    pub fn random_in_unit() -> Self {
+        loop {
+            let p = Self::random(-1.0, 1.0);
+
+            if p.length_squared() < 1.0 {
+                return p;
+            }
+        }
+    }
+
+    pub fn random_unit() -> Self {
+        Self::random_in_unit().unit()
+    }
+
+    pub fn random_on_hemisphere(normal: &Vector) -> Self {
+        let runit: Self = Self::random_unit();
+
+        if runit.dot(normal) > 0.0 {
+            runit
+        } else {
+            -runit
+        }
     }
 
     pub fn length_squared(&self) -> f64 {
