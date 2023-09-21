@@ -1,19 +1,26 @@
-use crate::{ray::Ray, vector::Point, Vector};
+mod sphere;
+
+use std::rc::Rc;
+
+use crate::{materials::Material, ray::Ray, vector::Point, Vector};
+pub use sphere::*;
 
 pub struct Hit {
     pub hit_point: Point,
     pub normal: Vector,
     pub time: f64,
     pub front_face: bool,
+    pub material: Rc<dyn Material>,
 }
 
 impl Hit {
-    pub fn new(hit_point: Point, normal: Vector, time: f64) -> Self {
+    pub fn new(hit_point: Point, normal: Vector, time: f64, material: Rc<dyn Material>) -> Self {
         Hit {
             hit_point,
             normal,
             time,
             front_face: true,
+            material: material,
         }
     }
 
@@ -21,6 +28,7 @@ impl Hit {
         hit_point: Point,
         time: f64,
         ray: &Ray,
+        material: Rc<dyn Material>,
         outward_normal: Vector,
     ) -> Self {
         let front_face: bool = ray.direction.dot(&outward_normal) < 0.0;
@@ -34,6 +42,7 @@ impl Hit {
             },
             time,
             front_face,
+            material,
         }
     }
 }

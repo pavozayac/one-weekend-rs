@@ -170,6 +170,17 @@ impl Mul<Vector> for f64 {
     }
 }
 
+impl Mul<Vector> for Vector {
+    type Output = Vector;
+    fn mul(self, rhs: Vector) -> Self::Output {
+        Vector {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+            z: self.z * rhs.z,
+        }
+    }
+}
+
 impl MulAssign<f64> for Vector {
     fn mul_assign(&mut self, rhs: f64) {
         self.x *= rhs;

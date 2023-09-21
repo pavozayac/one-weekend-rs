@@ -4,8 +4,9 @@ use rand::{thread_rng, Rng};
 const MAX_DEPTH: u32 = 50;
 
 use crate::{
-    hit::Hittable,
+    hittables::{Hit, Hittable},
     interval::Interval,
+    materials::ScatterEffect,
     ray::Ray,
     vector::{Point, Vector},
     Color,
@@ -13,7 +14,12 @@ use crate::{
 
 fn write_color(img: &mut RgbImage, x: u32, y: u32, color: Color, samples_pp: u32) {
     let scale: f64 = 1.0 / samples_pp as f64;
-    let color: Color = scale * color;
+    let mut color: Color = scale * color;
+
+    // Gamma-1/2 correction approximation
+    color.x = color.x.sqrt();
+    color.y = color.y.sqrt();
+    color.z = color.z.sqrt();
 
     let intensity: Interval = Interval::new(0.0, 0.9999);
 
@@ -77,9 +83,12 @@ impl Camera {
         for object in world.into_iter() {
             if let Some(hit) = object.hit(ray, 0.001, f64::INFINITY) {
                 // let dir: Vector = Vector::random_on_hemisphere(&hit.normal);
-                let dir: Vector = hit.normal + Vector::random_unit();
 
-                return 0.5 * Self::ray_color(&Ray::new(hit.hit_point, dir), world, depth + 1);
+                let seo: Option<ScatterEffect> = hit.material.scatter(ray, &hit);
+
+                if let Some(se) = seo {
+                    return se.attenuation * Self::ray_color(&se.scattered_ray, world, depth + 1);
+                }
             }
         }
 
