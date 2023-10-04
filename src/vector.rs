@@ -77,6 +77,10 @@ impl Vector {
     pub fn unit(&self) -> Vector {
         *self / self.length()
     }
+
+    pub fn reflect(&self, normal: &Self) -> Self {
+        *self - 2.0 * normal.dot(self) * *normal
+    }
 }
 
 impl<T: Copy + Into<f64>> From<[T; 3]> for Vector {
